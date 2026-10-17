@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-infra-lab
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-api
+  namespace: ai-infra-lab
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-api
+  template:
+    metadata:
+      labels:
+        app: iris-api
+    spec:
+      containers:
+        - name: api
+          image: iris-api:local
+          imagePullPolicy: Never
+          env:
+            - name: MODEL_RUN_ID
+              value: "20261004T023130Z-a8680171"
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+          securityContext:
+            runAsUser: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: model
+              mountPath: "/app/artifacts/20261004T023130Z-a8680171"
+              readOnly: true
+      volumes:
+        - name: model
+          hostPath:
+            path: "/models/20261004T023130Z-a8680171"
+            type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iris-api
+  namespace: ai-infra-lab
+spec:
+  type: ClusterIP
+  selector:
+    app: iris-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

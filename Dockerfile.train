@@ -1,0 +1,23 @@
+ARG PYTHON_VERSION=3.14
+FROM python:${PYTHON_VERSION}-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+COPY train.py .
+
+RUN groupadd --gid 10001 trainer \
+    && useradd --uid 10001 --gid 10001 --create-home trainer \
+    && mkdir -p /app/artifacts \
+    && chown trainer:trainer /app/artifacts
+
+USER 10001
+
+ENTRYPOINT ["python", "train.py"]
+CMD ["--c", "1.0"]

@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: iris-training-dup-001
+  namespace: ai-infra-lab
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 10001
+        runAsNonRoot: true
+      containers:
+        - name: trainer
+          image: iris-trainer:local
+          imagePullPolicy: Never
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              marker=/app/artifacts/.attempts/iris-training-dup-001
+              mkdir -p /app/artifacts/.attempts
+              python train.py --c 1.0
+              if [ ! -e "$marker" ]; then
+                touch "$marker"
+                echo "Simulated crash AFTER outputs were saved: exiting with error"
+                exit 1
+              fi
+              echo "Attempt finished successfully"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: training-output
+              mountPath: /app/artifacts
+              readOnly: false
+      volumes:
+        - name: training-output
+          hostPath:
+            path: /training-output
+            type: Directory

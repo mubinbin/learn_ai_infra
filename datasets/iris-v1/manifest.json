@@ -1,0 +1,14 @@
+{
+  "name": "iris-v1",
+  "rows": 150,
+  "columns": [
+    "sepal_length",
+    "sepal_width",
+    "petal_length",
+    "petal_width",
+    "species"
+  ],
+  "sha256": "1313a7d3c8e674c96db1ab36bb6b99c9fe779d2daf1839cbda0b3f5b866e7ef4",
+  "source": "scikit-learn load_iris",
+  "created_utc": "2026-10-17T22:56:46+00:00"
+}
