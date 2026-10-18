@@ -84,7 +84,7 @@ def load_data(data_dir):
         if not path.is_file():
             fail(f"missing {path}")
 
-    manifest = json.loads(manifest_path.read_text(encoding="utc-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     # 1 Did the file arrive exactly as published?
     actual = sha256_of(csv_path)
