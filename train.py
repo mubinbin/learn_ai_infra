@@ -110,7 +110,7 @@ def load_data(data_dir):
             labels.append(CLASS_NAMES.index(record["species"]))
 
     # 3 Did every row arrive?
-    if len(rows) != manifest["row"]:
+    if len(rows) != manifest["rows"]:
         fail(f"expected {manifest['row']} rows, found {len(rows)}")
 
     info = {"data_name": manifest["name"], "data_sha256": actual, "data_rows": len(rows)}
