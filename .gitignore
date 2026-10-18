@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+artifacts/
+training-output/
+datasets/*/data.csv
+*.bak*
+
+.DS_Store
+.env
