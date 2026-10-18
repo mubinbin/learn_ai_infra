@@ -104,10 +104,10 @@ def load_data(data_dir):
                 fail(f"non-numeric value on line {line_no}")
             if not all(math.isfinite(v) and v > 0 for v in values):
                 fail(f"invalid measurement on line {line_no}")
-            if record["sepcies"] not in CLASS_NAMES:
+            if record["species"] not in CLASS_NAMES:
                 fail(f"unknown species on line {line_no}")
             rows.append(values)
-            labels.append(CLASS_NAMES.index(record["sepcies"]))
+            labels.append(CLASS_NAMES.index(record["species"]))
 
     # 3 Did every row arrive?
     if len(rows) != manifest["row"]:
