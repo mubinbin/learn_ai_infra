@@ -1,0 +1,9 @@
+FROM iris-trainer:local
+
+USER 0
+RUN python -m pip install --no-cache-dir "pika>=1.3,<2"
+COPY worker.py .
+USER 10001
+
+ENTRYPOINT [ "python", "worker.py" ]
+CMD [ "consume" ]

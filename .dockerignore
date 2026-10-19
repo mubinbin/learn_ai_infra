@@ -5,3 +5,5 @@
 !requirements.txt
 !serve.py
 !train.py
+!Dockerfile.worker
+!worker.py

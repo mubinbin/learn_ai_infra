@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: ai-infra-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:4
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbit
+                  key: user
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbit
+                  key: pass
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          ports:
+            - name: amqp
+              containerPort: 5672
+          readinessProbe:
+            tcpSocket:
+              port: amqp
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+        
+      volumes:
+        - name: data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: ai-infra-lab
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: amqp
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-worker
+  namespace: ai-infra-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-worker
+  template:
+    metadata:
+      labels:
+        app: iris-worker
+    spec:
+      containers:
+        - name: worker
+          image: iris-worker:local
+          imagePullPolicy: Never
+          env:
+            - name: RABBIT_HOST
+              value: rabbitmq
+            - name: RABBIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbit
+                  key: user
+            - name: RABBIT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbit
+                  key: pass
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: output
+              mountPath: /app/artifacts
+            - name: datasets
+              mountPath: /app/datasets
+              readOnly: true
+      volumes:
+        - name: output
+          hostPath:
+            path: /training-output
+            type: Directory
+        - name: datasets
+          hostPath:
+            path: /datasets
+            type: Directory
+
+
