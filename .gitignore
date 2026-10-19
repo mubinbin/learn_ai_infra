@@ -10,3 +10,5 @@ datasets/*/data.csv
 
 .DS_Store
 .env
+
+draft.sh
