@@ -66,7 +66,7 @@ def handle(ch, method, properties, body):
         return
 
     crash = req.get("crash")
-    previous = (properties.header or {}).get("x-delivery-count", 0)
+    previous = (properties.headers or {}).get("x-delivery-count", 0)
     print(f"Received {run} (delivery {previous + 1}, "
           f"redelivery={method.redelivered})", flush=True)
 
@@ -119,7 +119,8 @@ def show_dlq():
             reason = headers.get("x-first-death-reason")
             if reason is None:
                 reason = (headers.get("x-death") or [{}])[0].get("reason")
-            print(f"{count} message(s) in {DLQ}; left in place")
+            print(f"{count}. reason={reason} {body.decode()}")
+    print(f"{count} message(s) in {DLQ}; left in place")
 
 def main():
     parser = argparse.ArgumentParser()
